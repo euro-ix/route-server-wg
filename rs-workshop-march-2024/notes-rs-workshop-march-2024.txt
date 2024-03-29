@@ -1,0 +1,95 @@
+
+BIRD updates: 
+ - BMP now sends data from all tables but soon we will be able to select the table we want
+ - BMP : RFC 7854 for now experimental
+    - dedicated protocol for BGP monitoring
+    - disabled by default
+ - BGP send hold timer is implemented 
+ - Custom BGP attributes can be defined in new BIRD versions
+    - New recommendation 
+ - Remote syslog is now supported
+ - EVPN in BIRD 
+
+
+OpenBGPd updates:
+ - IPv4 and IPv6 flow spec support
+ - ASPA support
+ - There is a feature to match all ext-communities to scrub them 
+
+Alice LG updates:
+ - Latest version is 6.1
+ - Memory improvements on 6.1 version
+ - Idea for supporting CBOR in order to stream data from BIRD to LG
+ - Questioning if should be support for BMP
+ - Some funding is needed to continue the work on that 
+
+BCOP for official IRR databases:
+ - Some network operators go to private DB to register their prefixes instead of the official DBs
+ - Consequently we end up with object conflicts
+ - Issues with private DBs inherit upcoming security policies like hierarchical AS-SETs
+ - Policy proposal : Use only those in the 5 known RIRs
+ - We will give 12 months as a grace period to allow the prefixes to be registered on the official RIRs as those net owners will need to move their objects to official DBs
+ - There are many duplicates on RADB as it seems for instance AMSIX found 76 objects which are double-registered
+ - Only unresolved issue so far is the ARIN legacy space
+ - ARIN don’t provide neither IRR nor RPKI to legacy resources holders
+    - This is an issue as we found out that there are now on the Internet 
+    - Couple thousands of those legacy IP networks
+    - There is no Authoritative IRR server for those IP networks and they cant be validated using RPKI
+    - Access Operators leasing networks from Cogent
+        - some US government entities , US universities, amateur packet radio
+        - also seen DoS scrubbing centers (mostly Prolexic -> Akamai)
+        - mostly US based companies which Global Carriers announce them in EU
+            - Cogent leases parts of their legacy nets to transit
+        - customers usually small Access operators => those are only on RADB
+    - From the results : BNIX has seen 2.695 prefixes, AMS-IX 214.961 prefixes, LONAP 32.882 prefixes 
+    - open discussion how access operators feel about these nets : "owning them" or "leasing them" in the end of the day.. ?
+
+Policy for fair use of BGP communities:
+ - Not enough support on this subject
+ - Only AMS-IX and LINX support the idea, the rest of the community is still sceptical
+ - Only supported sub-item is the 32hop AS-PATH limit
+
+BFD Challenges:
+ - some tests run by LU-CIX
+ - initial 300 msec time interval very aggressive
+ - above 400 msec seems stable when simple VMotion and Storage VMotion
+ - 500 msec also stable couple tests have been run on a Debian 12 rs-test
+ - next steps : 5 more tests with 400msec tx.
+
+SIEM meets BIRD
+ - by LU-CIX
+ - All logging from the BIRD of all RS servers end up to the ELK deployment
+ - 3 different setups tested and demonstrated with Centos7 and Debian 12
+ - with Filebeat, rsyslog and syslog-ng 
+ - Logstash for enriching the BIRD data parsing
+ - Elastic as the DB for storage
+ - Kibana as the visualization tool the front-end
+
+RFC8950:
+ - Supported in Junos >=17.3
+ - Supported in Nokia SR-OS >=19.5
+ - Bird supports it OpenBGPd not yet
+ - It is possible to support 2 daemons (IPv4/IPV6) with RFC8950 as long as we use 2 different IPv6 address
+ - BCIX will enable the capability on IPv6 daemon in few months
+
+ASPA:
+ - ASPA needs RFC9234 to work
+ - Recommendation to enable RFC9234
+ - PeeringLAN ASN needs an ASPA object with AS0
+ - For transparent Route Servers we don’t need to do anything 
+ - Start now, only 66 ASPA objects exist 
+ - BGPsec != ASPA, ASPA is more forgiving
+ - ASPA has no obligation to people to have ROA objects when creating ASPA objects
+
+IXP-MANAGER:
+ - NEW UI-Based filtering in IXP manager
+ - Good idea: make pairs of RSs and check if RS-X has finidhed updating before pushing config to RS-Y
+ - There are some nice script tools in the IXP-Manager repository that can be used in our deployment
+ - Definition of done? Different view from our view
+
+ROV-tools for IRR checks
+ - They use RTR tools to feed Route Servers with IRR prefixes
+ - RTRTR is the only tool that works reliably
+ - Solution works only on Bird
+ - They have a global table that matches prefixes with ASNs based on IRR data (not RPKI)
+ - Their solution feeds this table 
