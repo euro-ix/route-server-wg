@@ -6,9 +6,10 @@ BIRD updates:
     - disabled by default
  - BGP send hold timer is implemented 
  - Custom BGP attributes can be defined in new BIRD versions
-    - New recommendation 
  - Remote syslog is now supported
+ - UDP logging
  - EVPN in BIRD 
+ - MPLS introduced in 2.0.14
 
 
 OpenBGPd updates:
@@ -74,22 +75,31 @@ RFC8950:
 
 ASPA:
  - ASPA needs RFC9234 to work
- - Recommendation to enable RFC9234
+ - AS holder will authorize one or more other AS as its Upstream Providers like that we detect and mitigate Route Leaks
+ - You cant grow BGPSec organically to the Internet
  - PeeringLAN ASN needs an ASPA object with AS0
  - For transparent Route Servers we don’t need to do anything 
- - Start now, only 66 ASPA objects exist 
+ - Start now, only 66 ASPA objects exist deployed by YYCIX
  - BGPsec != ASPA, ASPA is more forgiving
  - ASPA has no obligation to people to have ROA objects when creating ASPA objects
 
 IXP-MANAGER:
  - NEW UI-Based filtering in IXP manager
+    - RS tags your routes in Ingress rather that you doing it on Egress
+    - RS filters routes to be advertised to you on Egress rather you on Ingress
  - Good idea: make pairs of RSs and check if RS-X has finidhed updating before pushing config to RS-Y
- - There are some nice script tools in the IXP-Manager repository that can be used in our deployment
- - Definition of done? Different view from our view
+ - There are some nice script tools in the IXP-Manager repository that can be used in our deployment:
+     - It is updated so that all routers now have named pairs
+     - Before the Update process starts -> the script obtains a “lock”
+     - a locked router prevents its pair from updating
+- old and new configs are now diff’d
+- bird reloads if and only if the config has changed
+- Definition of done? Different view from our view
 
 ROV-tools for IRR checks
  - They use RTR tools to feed Route Servers with IRR prefixes
  - RTRTR is the only tool that works reliably
+ - We should do based on origin-AS and not peer-AS
  - Solution works only on Bird
  - They have a global table that matches prefixes with ASNs based on IRR data (not RPKI)
  - Their solution feeds this table 
