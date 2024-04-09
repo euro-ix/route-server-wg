@@ -3,7 +3,7 @@
 
 ## Chairs
 
- 1. Irene Lalioti (LUC-IX)
+ 1. Irene Lalioti (LU-CIX)
  2. Stavros Konstantaras (AMS-IX)
 
 
