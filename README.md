@@ -11,9 +11,14 @@
 
 Initial scope is to store meeting notes from past meetings and also keep track of the Open Items that we work as a community
 
-
 ## Last meeting
- 13-14 of March 2024 in Rome, hosted by NAMEX
+
+18-19 of March 2025 in Dublin, hosted by INEX
+
+## Previous meetings
+
+- 13-14 of March 2024 in Rome, hosted by NAMEX
+- 21-22 of March 2023 in Torino, hosted by TOP-IX
 
 
 ## Current working items
