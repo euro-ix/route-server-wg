@@ -1,18 +1,33 @@
-- Bird Updates 2.16
-    - RPKI RTR version 2 ASPA
-    - security improvements
-        - per session auth for BFD
-        - md5 authentication for RPKI
-        - TCP-AO for BGP
+- Bird2 Updates
+    - version 2.17 comes soon 
+    - ASPA is supported in Bird 2.16
+      - also via RTR version 2
+    - StayRTR in ASPA might not be stable yet
+    - Presentation of an ASPA Example on Bird2
+    - New security improvements 
+      - per session auth for BFD
+      - md5 authentication for RPKI
+      - TCP-AO for BGP
+    - BMP is not encouraged to be used for Route Servers
+    - Multiple CLI sockets support (also for restricted socket)
+    - Bird3 has full feature parity with Bird2
+    - The number of threads/cores can be configured in Bird3
+      - Numbers of threads = numbers of cores -1 (of the main process)
 
-    - dump commands to files
 
-- Bird 3 uses 8-16 Threads/cores
-    - Numbers of threads = numbers of cores -1 (of the main process)
+- OpenBGPd updates
+    - OpenBGPd 8.8 and rpki-client 9.4
+    - RFC8654 increases the limit to 65535 so more attributes can be spent per prefix (old limit is 4096)
+    - RFC8950 is supported (half implemented though)
+    - Caching of Adj-Rib-Out over sessions restarts  (60 min) 
+    - Filtered routes are now included in the local-RIB but not eligible in the decision process
+    - New feature ‘transparent-as’ for allowing well known communities to pass 
+    - Is possible now to enforce some BGP capabilities like 4byte ASN
+    - Discussion on Ultra Long-Lived TA certs (TA certificates will have a MAX valididy period of 3 years) 
 
 
 - rpki-client feature highlights:
-    - improved performance 
+    - Improved performance 
     - RRDP sessions reinitialized at random intervals
     - rework bird config generator
     - exclude ROAs from AS0 TALs by default
@@ -23,9 +38,11 @@
 
 
 - RPKI Validators market research results
-    - Routinator 
-    - rpki-client with stayRTR 
-    - the most popular and used by us.
+    - Routinator is the most popular RPKI cache among members
+    - RPKI-CLIENT is the second most popular
+    - Most of the members run both flavours for redudancy
+    - VIX is not doing any RPKI at all
+
 
 - NETIX
     - IX in Bulgaria 
@@ -35,41 +52,33 @@
         - a nice RT dynamic testing tool
         - self-developped portal for monitoring
         - RS analysis
+    - Route server WEB admin Panel (which is like HTTPising the show route command of BIRD)
+    - The plot graphs about prefix updates by members
+    - NET-IX has a home-made Looking Glass
+    - They work with IXP-watch
+
 
 - AMS-IX NetOps python tool 
     - bird-route-analyzer
     - prefixes and peers discovery
-    - 
-    -
-    -
-    -
-    -
 
 
 - NL-IX: network facilitation with Remote Peering
-    - 
-    - 
-    - 
-    - 
-    - 
+    - PeeringDB has a new feature to specify the location of your router
+    - Discussion on how can this new feature can be used on the route Servers 
 
 
 - AMS-IX: eBGP peer flapping on bird2 conditions
-    - Diving into the Route Refresh
+    - Diving into the Route Refresh capability
+    - Testing configure vs configure soft + reload in/out
     - RS import table vs RS export table 
-    - tests and results 
-        -
-        -
-    - 
-    - 
-    - 
-    - Flapping on different BGP protocol scenarios
-        -
-        -
-        -
+    - Combined tests and results 
+    - Flapping of BGP sessions on different scenarios
+
 
 - NIX.CZ : 
     - Implementing RFC8950
+    - Not his favorite RFC to work
         - support IPv4 chnnel over IPv6 BGP session only
         - no support for IPv6 over IPv4 session
         - Added mandatory GTSM support RFC 6720
@@ -77,15 +86,20 @@
         - no next-hop rewrites
         - Added TCP-AO support and waiting for stable kernel
         - 16 peers about 8 ASNs 
+    - They installed BIRD3 and saw the performance improvements. Reconfiguration went down from 7 seconds to 1-2
+    - They are digging into an issue with bgp_community add that can cause a BGP filap.
+    - They defined the threads values as amount of cores -1 
+    - To make Looking glass work with BIRD3 they had to update some Regex expressions. 
+    - They tried the next-hop rewrite feature. Ugly but possible 
+    - They are playing with Flowspec 
 
 
     - IRRDB time consuming
-        - bgpq4 use
-        - every hour their prefix generation
-        - their full bird RS full reconfig takes about 20 minutes
-        - filter aggregation use
+        - bgpq4 is being used
+        - reconfiguration happens every hour
+        - Full bird RS full reconfig takes about 20 minutes
+        - Filter aggregation is being used
             - per channel filters
-
 
     - Fenix project
         - Proprietary work
@@ -98,31 +112,22 @@
         - std 15 msec with timeout 5
 
 
-- DE-CIX: Peering LAN global reachability tests
-    -
-    -
-    -
-    - peering LANs are highly visible in the DFZ
-    - IXPs don't have control as AS0 ROAs don't help
-    - BGP monitoring is pointless if there is no BGP visibility
-    - Any infra insode a peering LAN is reachable from a high amount of DDoS reflectors
-    - BCP194 and RFC 7454 should be updated to discourage downstream announcements of peering LAN prefixes.
-    -
-    -
-    - RS and Routers in the Peering LAN should be treated as public infra
-    - IXPs shouldn't base network designs on invisibility 
-    - IXP operators should rate limit or block traffic from external IPs into the Peering LAN
-
-
 - CZ.NIC : TCP-AO : a way to secure BGP sessions in Bird
-        - MD5 is cryptographically broken and unsuitable for further use
-        - Key negotiation
-            - based on preference key selection
-            - announce it as RNext KeyID 
-            - received RNext ID use as Current ID 
-            - or ignore it if it is unknown
+    - MD5 is cryptographically broken and unsuitable for further use
+    - Kernel of Linux 6.7 supports it as of 2024
+    - Multiple keys are supported with TCP-AO
+    - With TCP-AO you can use different key to send BGP traffic and different key to receive BGP traffic
+    - Key negotiation
+      - based on preference key selection
+      - announce it as RNext KeyID 
+      - received RNext ID use as Current ID 
+      - or ignore it if it is unknown
+  - Bird has 3 levels of key preference for configured keys 
+  - Recommendation to not remove key once it is obsolete but rather use the option depreccated
+  - TCP reset can be prevented with TCP-AO (also TCP-MD5 was doing that)
         
-        - TTL security is faster to detect the spoofed IP packet in your Peering LAN
+  - TTL security is faster to detect the spoofed IP packet in your Peering LAN
+
 
 - NL-IX : Load Balancing the incoming traffic via RS
     - balancing traffic is desired
@@ -133,7 +138,7 @@
 
 
 - OpenBGPd performance and scaling results:
-    - rethinking BGP performance and measurements
+    - Rethinking BGP performance and measurements
     - current practices :
         - measure time from cold start until all routes have been distributed
             - no ASPA validation no ROA 
@@ -144,42 +149,33 @@
         - needs 2 sessions to measure round trip time from sender to receiver
         - sends UPDATE every second and measures the round trip time
         - includes a counter to track if messages got merged together
+    - Wants to build a tool like bgp-blaster that emulates customers based on MRT dumps
+
 
 
 - LINX: Discussion on BGP Prefix limit strategies
-        - peering DB
-        - peer informs us what to set
-        - guess if the limit is too high
-        - currently linx have : 
-            - 666 peers with less than 500 prefixes 
-            - 75 peers with more than 500 prefixes 
+    - Linx so far does not have any policy for setting prefix limits 
+    - The peer informs us what to set. We guess if the limit is too high
+    - currently linx have: 
+      - 666 peers with less than 500 prefixes 
+      - 75 peers with more than 500 prefixes 
+    - Question if we should draft a BCP for that, was a good idea and encouranged by the group
+    - Regarding the random value on top of the prefix limit, we believe that is not necessary. 
 
 
-
-- AMS-IX: BCOP analysis update
-    - 
-    - 
-    - 
-    - 
-
-
-- Bird2 : better to use attributes over communities
-        - as we discussed with Maria in previous years
-        - France-IX implement it.
+- Discussion over Bird2 : 
+    - Better to use attributes over communities (per discussion with Maria in previous years)
+    - France-IX implement it.
 
 
 - Discussions on RFC 9324
-    - RPKI without Route Refresh
-    - people shouldn't route refresh
-    - similar issue with ROA Updates
-
-
-- Discussions on RFC 9234 
+    - RPKI without Route Refresh. People shouldn't route refresh
+    - Similar issue with ROA Updates
     - BGP Roles OTC attributes in UPDATE and OPEN messages
-    - another tool to prevent Route Leaks
-    - important: roles are defined per session 
+    - Another tool to prevent Route Leaks
+    - Important: roles are defined per session 
         - for complex peering relationship and more complexity -> better not to enable it.
-    - AMS-IX, LINX, France-IX (Lyon)
+    - Implemented by AMS-IX, LINX, France-IX (Lyon)
 
 
 - Public Looking glass Irene Discussions 
