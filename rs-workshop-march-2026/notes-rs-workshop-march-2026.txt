@@ -1,0 +1,407 @@
+---
+#
+# Netnod IX 
+#
+- They implement 2 physically separated switch fabrics to enhabce redundancy
+
+- Vendor is Arista
+
+- They have 24 different locations over 7 IXPs
+    - where the largest metro is in Stockholm with 10 POPs
+    - and the second largest in Copenhagen with 4 POPs
+
+- They run 26 RS on Bird and 2 on OpenBGPd
+ 
+# 
+# Bird Updates
+#
+- 2.17 and 3.1 released in 04/2025
+
+- 2.18 and 3.2 released in 12/2025
+
+- The Long Term Support versions are released every 2 years & supported at least 3 years, synced with Debian cycle
+
+- Bird2 still being actively developped with various bugfixes
+    - BGP paths with AS sets are rejected by default (in 2.18 / 3.2)
+    - bug fixed: ASPA in downstream validation
+        - not relevant for RS
+
+    - Interface bound dynamic BGP
+        - for BGP with IPv6 link-local addressing
+        - the single-hop BGP can be bound to a specific interface
+
+    - Peer detection based on received router advertisements
+        - next release 2026-04
+    
+    - EVPN BGP AFI/SAFI basic support
+        - MPLS & vxlan dataplane tunnel support 
+        - as well for next release 2026-04
+
+    - BIRD API 
+        - based on YANG models
+        - CBOR encoded 
+        - initial version mirroring existing CLI cmds
+
+    - Filter Datatype Refactoring
+        - into uniform structured datatypes as lists, sets, records
+        - multi-level attributes
+        - the next-hop is represented as a list within sub-attributes
+        - BGP tunnel encapsulation attribute as a list of records
+    
+    
+# 
+# OpenBGPd & rpki-client Updates
+#
+- portable since last year with 
+    - the latest version 9.0 and next one 9.1 very soon
+
+- rpki-client also portable
+    - latest version 9.7 
+    - 3 releases since the latst WS
+
+- OpenBGPd features update:
+
+    - Doubled the performance for typical RS workloads
+
+    - Reduced Memory consumption for big RS workloads by 1/2
+
+    - Reduced Latency by processing the UPDATE in 2 steps 
+
+    - introduced scalable Hash Map implementation with CH hash tables
+
+    - improved filter & filterset performance (in next release)
+
+    - introduced more metric points to better track performance & memory
+
+- rpki-client features update:
+
+    - ARIN TAL is now included by default
+
+    - Usage of parallel threads for object validation
+
+    - now reports on non-functional CAs 
+
+    - filemode can now automatically detect file types
+
+    - added support on the canonical cache representation
+
+    - ghostbusters record objects are now gone 
+
+
+# 
+# Alice-LG Updates
+#
+- Maintenance
+
+- New features
+
+- Rust rewrite occurred 
+
+- the support for GoBGP with API V3 was merged
+
+- the multi-table birdwatcher source now uses stream parsing
+
+- the main table name can be now set by single-table source
+
+- for monitoring in Prometheus exporters additions 
+
+    - state of the neighbor is visible
+
+    - uptime of the neighbor on a RS in second
+
+    - total number of routes received / filtered / preferred / accepted by the RS for a given neighbor
+
+- RFC 8950 support 
+
+
+# 
+# ASPA & irrd from NIX.CZ
+#
+- Marian showed how they implemented ASPA in Bird which is straighforward 
+
+- While using IRRD to generate the config
+    - of 196 AS-SETs
+    - with no cache the bgpq4 , it took 9 minutes
+    - with cache bgp4 , it took 5 minutes
+    - with GraphQL just 45 seconds
+
+- we should be attentive with IRR validation 
+    - as 1 ASSET was found with 989 invalids
+    - things need cleanup
+    - 16 out of 38 have issues with RPKI
+
+#
+# Route servers at VIX 
+#
+
+
+#
+# SIX.SI / ARNES 
+#
+- keeping traffic local
+
+- In the Slovenian IX there are no fees for members
+
+- There are 2 locations in Ljubljana
+
+- 36 members
+
+- 50 connections
+    - 13 with 100 Gbit/S
+    - 37 with nx10Gbit/s 
+
+- They use communities to tag the location of a route to steer traffic prioritizing routes with same location 
+- Thus they prefer local routes
+
+
+#
+# Seeweb - Debian packaging of IXP RS stack 
+#
+- Distro packages vs Vendor packages
+
+    - Vendor pkg are more fresh
+    - Distro pkg are ready to use after installation
+        - automatic seurity Updates
+        - integration along with the OS and there is high attention to details
+        - maintainted by system engineers 
+
+- Packaging Routinator as a challenge
+    - Rust complex projects in packaging is difficult
+    - APIs are not stable
+    - Rust development ecosystem is broken and hostile to distros
+    - rpki-trust-anchors is not used in the deb pkg
+
+- new in BIRD packaging
+    - cleanup & complexity removal
+    - removed of old init scripts
+    - systemd security sandboxing
+
+
+
+#
+# LINX - BFD & IXP RS 
+#
+
+- 
+ 
+-
+
+-
+
+-
+
+-
+
+-
+
+
+
+
+#
+# BCIX - RFC 8950
+#
+- They use 2times MX204 for mgmt network
+
+- located in same DC like RSes 
+
+- with 2 times 100G available
+
+- André showed the BIRD config for the RFC implemetation using large-communities
+
+- He also showed how the config is translated to JunOS
+
+
+-----
+# Day 2
+#
+
+#
+# Claudio on OpenBGPD performance 
+#
+
+- In a more detailed presentation Claudio went through the performance points of OpenBGPD
+
+- Reduced size of data structures to better fit into cache lines
+
+- Reduced number of cache misses by rearranging the data structures by using a linear array instead of a linked list
+
+- more than 50% speedup
+
+- better memory consumption by half 
+
+- dropped latency from minutes to seconds
+
+- Next steps for filters 
+
+    - outbound filters are improved but not inbound 
+
+    - they are dependent heavily on communities
+
+    - Rework the Adj-RIB-In & Loc-RIB to benefit in a similar way to the Adj-RIB-Out
+
+    - Reconsider pending updates & withdraw queues
+
+    - Better to store updates for groups of peers & not use per-peer queues
+
+
+
+#
+# Jasper NLNETLabs - 
+#
+
+- BMP sessions
+
+- Rotonda was born after Arelion asked them 
+    - it is a filter language inspired by BIRD
+
+- Roto streaming telemetry
+
+- ROTORO : a protocol to talk Rotonda to Rotonda 
+    - with full state transfers 
+    - and delta updates (like RTR flavor)
+
+
+
+#
+# Anton - DE-CIX - VPP  
+#
+
+- Google Peering Provider
+
+- a L3 only conenction to Google
+
+- Dedicated XCs as required for ISPs 
+
+- DE-CIX created 2 VPP instances on 1 dedicated VPRN 
+
+- ASN for direct Peering
+
+- PNI is split 50/50 
+    - DE-CIX pays 1 XC the other payed by Google
+    - Google supports only LR4 4x15G and call it LR 
+
+
+#
+# Simone - MIX - Centralising RS cfg generation  
+#
+
+- separate peering LANs 
+
+- several VMs to maintain 
+
+-
+
+- 
+
+-
+
+
+
+
+
+#
+# Stavros - AMS-IX - Emulation of RS ecosystem 
+#
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+
+
+
+
+
+#
+# Radu - France-IX - BGP Attributes that break BGP sessions
+#
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+
+#
+# Rob - LONAP - Collecotors & LGs 
+# 
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+#
+# Rob - LONAP - IXP Manager Update 
+# 
+
+-
+
+-
+
+-
+
+-
+
+#
+# Irene - LU-CIX - RS Standardization Landscape
+# 
+
+- Transition from foundational RFCs to Operational Hygiene
+
+- Standard Modernization 
+
+- IPv6 only fabrics
+
+- Decline of the legacy Signaling 
+
+- Strengthening the Routing security
+
+- Advanced Filtering 
+
+- Core Active Standards
+
+    - RFC 7947 Operational Best practices
+    - RFC 7948
+    - RFC 9234 BGP Roles - High adoption
+    - RFC 6480, 6811, 6482 - RPKI - BGP prefix validation 
+    - MANRS
+    - RFC 8210 RTR 
+
+- LU-CIX RS cfgs : exceptions/adjustments 
+    - black lists for specific prefixes that Meta, Apple & Google Cache wish to not announce to 
+    - avoid remote IXP members to stream traffic from Caches in Luxembourg as they are not meant to fill up the local pipes
